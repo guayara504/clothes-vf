@@ -1,23 +1,22 @@
-# Python (Backend)
+# Entorno Virtual de Python (Backend)
 backend/.venv/
 backend/__pycache__/
 
-# Terraform (Backend y Frontend)
+# Archivos generados por Terraform (Backend y Frontend)
 backend/terraform/.terraform/
 frontend/terraform/.terraform/
 *.tfstate
 *.tfstate.*
 
-# Archivos de construcción
+# Archivos de construcción de la capa de dependencias
 backend/build/
 backend/layer.zip
 backend/code.zip
-frontend/build/
 
-# Node.js (Frontend)
+# Dependencias de Node.js (Frontend)
 frontend/node_modules/
 
-# Sistema y Editor
+# Configuración del editor y archivos del sistema
 .vscode/
 .DS_Store
 Thumbs.db
