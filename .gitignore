@@ -1,14 +1,14 @@
-# Entorno Virtual de Python (Backend)
+# Entorno Virtual de Python (Backend) - SOLO PARA DESARROLLO LOCAL
 backend/.venv/
 backend/__pycache__/
 
-# Archivos generados por Terraform (Backend y Frontend)
+# Archivos generados por Terraform (Backend y Frontend) - NUNCA SUBIR
 backend/terraform/.terraform/
 frontend/terraform/.terraform/
 *.tfstate
 *.tfstate.*
 
-# Archivos de construcción de la capa de dependencias
+# Archivos de construcción (se generan en cada despliegue)
 backend/build/
 backend/layer.zip
 backend/code.zip
