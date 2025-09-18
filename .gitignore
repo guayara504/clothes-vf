@@ -1,0 +1,23 @@
+# Python (Backend)
+backend/.venv/
+backend/__pycache__/
+
+# Terraform (Backend y Frontend)
+backend/terraform/.terraform/
+frontend/terraform/.terraform/
+*.tfstate
+*.tfstate.*
+
+# Archivos de construcción
+backend/build/
+backend/layer.zip
+backend/code.zip
+frontend/build/
+
+# Node.js (Frontend)
+frontend/node_modules/
+
+# Sistema y Editor
+.vscode/
+.DS_Store
+Thumbs.db
