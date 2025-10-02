@@ -1,3 +1,6 @@
 flask>=2.2.0
 aws-wsgi
 boto3
+requests
+python-dotenv
+aws-requests-auth

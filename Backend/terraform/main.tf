@@ -81,22 +81,35 @@ resource "aws_lambda_layer_version" "app_dependencies" {
 }
 data "archive_file" "lambda_zip" {
   type        = "zip"
-  source_dir  = "../app/"
+  source_dir  = ".." # Sube a la raíz de /backend
   output_path = "code.zip"
+
+  # Excluimos carpetas y archivos innecesarios
+  excludes = [
+    ".venv",
+    "terraform",
+    "build",
+    "layer.zip",
+    "Dockerfile",
+    ".gitignore"
+  ]
 }
 resource "aws_lambda_function" "api_lambda" {
   filename         = data.archive_file.lambda_zip.output_path
   function_name    = "clothes-vf-api-lambda"
   role             = aws_iam_role.lambda_exec_role.arn
-  handler          = "app.main_handler"
+  handler          = "handler.main_handler"
   layers           = [aws_lambda_layer_version.app_dependencies.arn]
   source_code_hash = data.archive_file.lambda_zip.output_base64sha256
   runtime          = "python3.12"
   environment {
     variables = {
-      PRODUCTS_TABLE  = aws_dynamodb_table.products_table.name
-      ORDERS_TABLE    = aws_dynamodb_table.orders_table.name
-      DYNAMODB_REGION = "us-east-2" # <-- VERIFICA TU REGIÓN
+      PRODUCTS_TABLE      = aws_dynamodb_table.products_table.name
+      ORDERS_TABLE        = aws_dynamodb_table.orders_table.name
+      DYNAMODB_REGION     = "us-east-2"
+      # Usamos las llaves del Botón de Pagos
+      BOLD_IDENTITY_KEY   = "LkJT-I3jHFjuRJb5u-iZ2eD3ULrBYRyK-VewRFej2hI" # La que encontraste
+      BOLD_SECRET_KEY     = "HbYtouJmdhWLnENaFBOj_g" # La que encontraste
     }
   }
 }
