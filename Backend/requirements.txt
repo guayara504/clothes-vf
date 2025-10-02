@@ -4,3 +4,4 @@ boto3
 requests
 python-dotenv
 aws-requests-auth
+Flask-Cors
