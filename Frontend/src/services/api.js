@@ -16,4 +16,17 @@ export const getProducts = () => {
   return apiClient.get('/products');
 };
 
-// Aquí añadiremos más funciones (crear, actualizar, eliminar) más adelante
+export const createProduct = (productData) => {
+  // Usamos el endpoint de administrador
+  return apiClient.post('/admin/products', productData);
+};
+
+// Función para actualizar un producto por su ID
+export const updateProduct = (productId, productData) => {
+  return apiClient.put(`/admin/products/${productId}`, productData);
+};
+
+// Función para eliminar un producto por su ID
+export const deleteProduct = (productId) => {
+  return apiClient.delete(`/admin/products/${productId}`);
+};

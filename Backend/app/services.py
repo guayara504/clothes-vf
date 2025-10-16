@@ -61,21 +61,41 @@ def create_product(product_data):
         return None
 
 def update_product(product_id, product_data):
-    """Actualiza un producto existente."""
+    """Actualiza un producto existente de forma más robusta."""
     try:
-        # Crea la expresión de actualización dinámicamente
-        update_expression = "SET " + ", ".join(f"#{k}=:{k}" for k in product_data)
-        expression_attribute_names = {f"#{k}": k for k in product_data}
-        expression_attribute_values = {f":{k}": v for k, v in product_data.items()}
+        # Prevenimos que se intente actualizar la clave primaria (productId)
+        if 'productId' in product_data:
+            del product_data['productId']
+
+        # Aseguramos que el precio sea un número entero
+        if 'price' in product_data:
+            try:
+                product_data['price'] = int(product_data['price'])
+            except (ValueError, TypeError):
+                # Si el precio no es un número válido, lo eliminamos de la actualización
+                del product_data['price']
+
+        # Eliminamos campos con valores vacíos para evitar errores en DynamoDB
+        update_data = {k: v for k, v in product_data.items() if v != ""}
+
+        if not update_data:
+            # No hay nada que actualizar
+            return get_product_by_id(product_id)
+
+        # Construir la expresión de actualización dinámicamente
+        update_expression = "SET " + ", ".join(f"#{k}=:{k}" for k in update_data)
+        expression_attribute_names = {f"#{k}": k for k in update_data}
+        expression_attribute_values = {f":{k}": v for k, v in update_data.items()}
 
         response = table.update_item(
             Key={"productId": product_id},
             UpdateExpression=update_expression,
             ExpressionAttributeNames=expression_attribute_names,
             ExpressionAttributeValues=expression_attribute_values,
-            ReturnValues="UPDATED_NEW"
+            ReturnValues="ALL_NEW"  # Devuelve el objeto completo actualizado
         )
         return response.get("Attributes")
+
     except Exception as e:
         print(f"Error al actualizar el producto {product_id}: {e}")
         return None
