@@ -3,6 +3,7 @@ import React from 'react';
 import { Routes, Route, Link } from 'react-router-dom';
 import HomePage from './pages/HomePage';
 import ProductManagement from './pages/ProductManagement';
+import ProductDetailPage from './pages/ProductDetailPage'; // <-- 1. IMPORTAR
 import NotFoundPage from './pages/NotFoundPage';
 import { AppBar, Toolbar, Typography, Button, Container } from '@mui/material';
 
@@ -29,6 +30,9 @@ function App() {
           <Routes>
             {/* Ruta para la tienda pública */}
             <Route path="/" element={<HomePage />} />
+
+            {/* --- 2. AÑADIR LA NUEVA RUTA DINÁMICA --- */}
+            <Route path="/product/:productId" element={<ProductDetailPage />} />
 
             {/* Ruta para el panel de administración */}
             <Route path="/admin/products" element={<ProductManagement />} />

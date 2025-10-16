@@ -30,3 +30,8 @@ export const updateProduct = (productId, productData) => {
 export const deleteProduct = (productId) => {
   return apiClient.delete(`/admin/products/${productId}`);
 };
+
+// --- AÑADE ESTA NUEVA FUNCIÓN ---
+export const getProductById = (productId) => {
+  return apiClient.get(`/products/${productId}`);
+};
