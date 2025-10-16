@@ -1,6 +1,7 @@
 // src/pages/ProductDetailPage.jsx
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
+import { useCart } from '../context/CartContext'; // <-- 1. IMPORTAR CARRITO
 import { getProductById } from '../services/api';
 import {
   Container, Typography, Box, CircularProgress, Card, CardMedia, CardContent, Button
@@ -13,6 +14,7 @@ function ProductDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const { addToCart } = useCart(); // <-- 2. OBTENER LA FUNCIÓN DEL CONTEXTO
   useEffect(() => {
     const fetchProduct = async () => {
       try {
@@ -31,6 +33,14 @@ function ProductDetailPage() {
       fetchProduct();
     }
   }, [productId]); // Se ejecuta cada vez que el productId de la URL cambia
+
+  const handleAddToCart = () => {
+    if (product) {
+      addToCart(product);
+      // Opcional: Mostrar una notificación de que el producto fue añadido
+      alert(`${product.name} ha sido añadido al carrito!`);
+    }
+  };
 
   if (loading) {
     return <Box sx={{ display: 'flex', justifyContent: 'center', mt: 8 }}><CircularProgress /></Box>;
@@ -65,7 +75,8 @@ function ProductDetailPage() {
               {product.description}
             </Typography>
             <Box sx={{ mt: 4 }}>
-              <Button variant="contained" size="large">
+              {/* --- 3. CONECTAR EL BOTÓN AL EVENTO --- */}
+              <Button variant="contained" size="large" onClick={handleAddToCart}>
                 Añadir al Carrito
               </Button>
             </Box>
