@@ -35,3 +35,8 @@ export const deleteProduct = (productId) => {
 export const getProductById = (productId) => {
   return apiClient.get(`/products/${productId}`);
 };
+
+// --- AÑADE ESTA NUEVA FUNCIÓN ---
+export const placeOrder = (orderData) => {
+  return apiClient.post('/orders', orderData);
+};
