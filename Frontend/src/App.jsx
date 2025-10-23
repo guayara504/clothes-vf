@@ -5,6 +5,7 @@ import { useCart } from './context/CartContext'; // Importar useCart
 import HomePage from './pages/HomePage';
 import ProductManagement from './pages/ProductManagement';
 import ProductDetailPage from './pages/ProductDetailPage';
+import CheckoutPage from './pages/CheckoutPage'; // <-- IMPORTAR
 import NotFoundPage from './pages/NotFoundPage';
 import Cart from './components/Cart'; // Importar el componente del carrito
 import {
@@ -50,6 +51,7 @@ function App() {
             <Route path="/" element={<HomePage />} />
             <Route path="/product/:productId" element={<ProductDetailPage />} />
             <Route path="/admin/products" element={<ProductManagement />} />
+            <Route path="/checkout" element={<CheckoutPage />} /> {/* <-- AÑADIR RUTA */}
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </Container>

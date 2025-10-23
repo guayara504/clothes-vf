@@ -1,5 +1,6 @@
 // src/components/Cart.jsx
 import React from 'react';
+import { useNavigate, Link } from 'react-router-dom'; // <-- IMPORTAR
 import { useCart } from '../context/CartContext';
 import {
   Drawer, Box, Typography, List, ListItem, ListItemText,
@@ -9,6 +10,12 @@ import DeleteIcon from '@mui/icons-material/Delete';
 
 function Cart({ open, onClose }) {
   const { cartItems, removeFromCart, cartTotal } = useCart();
+  const navigate = useNavigate(); // <-- Hook para navegar
+
+  const handleCheckout = () => {
+    onClose(); // Cierra el carrito
+    navigate('/checkout'); // Navega a la página de checkout
+  };
 
   return (
     <Drawer anchor="right" open={open} onClose={onClose}>
@@ -46,7 +53,12 @@ function Cart({ open, onClose }) {
           </List>
         )}
         {cartItems.length > 0 && (
-            <Button variant="contained" fullWidth sx={{ mt: 2 }}>
+            <Button
+              variant="contained"
+              fullWidth
+              sx={{ mt: 2 }}
+              onClick={handleCheckout} // <-- CONECTAR EL BOTÓN
+            >
                 Ir a Pagar
             </Button>
         )}
