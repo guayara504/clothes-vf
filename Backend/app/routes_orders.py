@@ -20,8 +20,9 @@ def place_order():
 
     return jsonify(result), 201
 
-# Aquí, más adelante, añadiremos el endpoint del webhook de Bold
-# @orders_bp.route("/webhooks/bold", methods=["POST"])
-# def bold_webhook():
-#     # ... lógica para manejar la confirmación de pago
-#     pass
+
+@orders_bp.route("/webhook/mercadopago", methods=["POST"])
+def mercadopago_webhook():
+    notification = request.get_json()
+    response, status_code = services_orders.handle_mercadopago_webhook(notification)
+    return jsonify(response), status_code

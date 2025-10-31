@@ -107,9 +107,9 @@ resource "aws_lambda_function" "api_lambda" {
       PRODUCTS_TABLE      = aws_dynamodb_table.products_table.name
       ORDERS_TABLE        = aws_dynamodb_table.orders_table.name
       DYNAMODB_REGION     = "us-east-2"
-      # Usamos las llaves del Botón de Pagos
-      BOLD_IDENTITY_KEY   = "LkJT-I3jHFjuRJb5u-iZ2eD3ULrBYRyK-VewRFej2hI" # La que encontraste
-      BOLD_SECRET_KEY     = "HbYtouJmdhWLnENaFBOj_g" # La que encontraste
+      # --- Credenciales de Mercado Pago ---
+      MERCADOPAGO_ACCESS_TOKEN = "APP_USR-708610420231467-102818-8d231966964797bb77c0a7ff3b7fc140-2952049060"
+      MERCADOPAGO_WEBHOOK_SECRET = "8c093f9c881b4009146e4f9931e06ef1ec02b45ed86dba6e7a8424ee63312ae8"
     }
   }
 }
