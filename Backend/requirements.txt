@@ -1,0 +1,6 @@
+flask>=2.2.0
+aws-wsgi
+boto3
+python-dotenv
+Flask-Cors
+mercadopago
