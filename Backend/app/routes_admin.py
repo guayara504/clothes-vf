@@ -3,6 +3,7 @@
 from flask import Blueprint, jsonify, request
 # Usa la ruta completa
 from app import services
+from app import services_orders
 
 admin_bp = Blueprint("admin", __name__)
 
@@ -34,3 +35,13 @@ def delete_one_product(product_id):
         return jsonify({"error": "No se pudo eliminar el producto"}), 500
     
     return jsonify({"message": "Producto eliminado exitosamente"}), 200
+
+@admin_bp.route("/admin/orders", methods=["GET"])
+def get_all_orders():
+    """Obtiene todas las órdenes para el panel de administración"""
+    result = services_orders.get_all_orders()
+    
+    if result.get("status") == "error":
+        return jsonify({"error": result.get("message")}), 500
+    
+    return jsonify({"status": "success", "data": result.get("orders", [])}), 200

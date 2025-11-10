@@ -135,11 +135,12 @@ def _create_mercadopago_preference(order_id, items, customer_details):
             # Configuración específica para Colombia
             "statement_descriptor": "CLOTHES VF",
             "binary_mode": False,  # CRÍTICO: False permite pagos pendientes (necesario para PSE)
-            # IMPORTANTE: Por defecto, Mercado Pago permite pagos sin cuenta (como invitado)
-            # Los usuarios pueden pagar ingresando directamente los datos de su tarjeta
-            # sin necesidad de crear o iniciar sesión en Mercado Pago
-            # Si se está forzando login, verifica en tu cuenta de Mercado Pago:
-            # Configuración > Checkout > "Solo usuarios de Mercado Pago" debe estar DESACTIVADO
+            # Configuración explícita para permitir pagos sin cuenta
+            # NO incluir "purpose" que fuerza login
+            # Permitir pagos de invitados explícitamente
+            "purpose": None,  # No forzar ningún propósito específico que requiera cuenta
+            # Configuración adicional para garantizar pagos sin cuenta
+            "expires": False,  # No expirar la preferencia
             # URLs adicionales para mejor manejo
             "notification_url": None,  # Se maneja por webhook separado
         }
