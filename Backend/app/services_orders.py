@@ -371,3 +371,38 @@ def get_orders_by_email(email):
         import traceback
         traceback.print_exc()
         return {"status": "error", "message": "No se pudieron obtener las órdenes."}
+
+def get_all_orders():
+    """
+    Obtiene todas las órdenes de la base de datos (para administración).
+    """
+    try:
+        print(f"📋 Obteniendo todas las órdenes...")
+        
+        # Escanear toda la tabla
+        response = table.scan()
+        
+        orders = response.get('Items', [])
+        
+        # Manejar paginación si hay más resultados
+        while 'LastEvaluatedKey' in response:
+            response = table.scan(ExclusiveStartKey=response['LastEvaluatedKey'])
+            orders.extend(response.get('Items', []))
+        
+        # Convertir Decimal a int/float para JSON serializable
+        for order in orders:
+            if 'totalAmount' in order:
+                order['totalAmount'] = int(order['totalAmount'])
+        
+        # Ordenar por fecha de creación (más recientes primero)
+        orders.sort(key=lambda x: x.get('createdAt', ''), reverse=True)
+        
+        print(f"✅ Se encontraron {len(orders)} órdenes en total")
+        
+        return {"status": "success", "orders": orders}
+        
+    except Exception as e:
+        print(f"❌ Error al obtener todas las órdenes: {e}")
+        import traceback
+        traceback.print_exc()
+        return {"status": "error", "message": "No se pudieron obtener las órdenes."}
