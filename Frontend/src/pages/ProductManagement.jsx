@@ -1,5 +1,6 @@
 // src/pages/ProductManagement.jsx
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { getProducts, createProduct, updateProduct, deleteProduct } from '../services/api';
 import {
   Container, Typography, Table, TableBody, TableCell, TableContainer,
@@ -128,7 +129,17 @@ function ProductManagement() {
     <Container>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 4, mb: 4 }}>
         <Typography variant="h4" gutterBottom>Gestión de Productos</Typography>
-        <Button variant="contained" onClick={handleOpenCreateModal}>Nuevo Producto</Button>
+        <Box sx={{ display: 'flex', gap: 2 }}>
+          <Button 
+            variant="outlined" 
+            component={Link}
+            to="/admin/orders"
+            sx={{ textTransform: 'none' }}
+          >
+            Ver Pedidos
+          </Button>
+          <Button variant="contained" onClick={handleOpenCreateModal}>Nuevo Producto</Button>
+        </Box>
       </Box>
 
       {loading && <Box sx={{ display: 'flex', justifyContent: 'center' }}><CircularProgress /></Box>}

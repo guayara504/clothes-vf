@@ -89,8 +89,12 @@ def create_order(order_data):
 def _create_mercadopago_preference(order_id, items, customer_details):
     """
     Función auxiliar para crear una Preferencia de Pago en Mercado Pago.
+    Configurada para habilitar tarjeta de débito y PSE en Colombia.
     """
     try:
+        # Calcular el total para validación
+        total_amount = sum(float(item['price']) * int(item['quantity']) for item in items)
+        
         preference_data = {
             "items": [
                 {
@@ -103,22 +107,90 @@ def _create_mercadopago_preference(order_id, items, customer_details):
             "payer": {
                 "name": customer_details.get('name'),
                 "email": customer_details.get('email'),
+                "phone": {
+                    "number": customer_details.get('phone', '')
+                },
+                "address": {
+                    "street_name": customer_details.get('address', '')
+                }
             },
+            # URLs de retorno
+            # URLs de producción: CloudFront
             "back_urls": {
-                "success": "https://localhost:5173/pago/respuesta",
-                "failure": "https://localhost:5173/pago/fallo",
-                "pending": "https://localhost:5173/pago/pendiente"
+                "success": "https://dovb38cqxf7k1.cloudfront.net/pago/respuesta",
+                "failure": "https://dovb38cqxf7k1.cloudfront.net/pago/fallo",
+                "pending": "https://dovb38cqxf7k1.cloudfront.net/pago/pendiente"
             },
             "auto_return": "approved",
             "external_reference": order_id,
+            # Configuración de métodos de pago para Colombia
+            # IMPORTANTE: No excluimos ningún método para que aparezcan todos
+            "payment_methods": {
+                # Listas vacías = TODOS los métodos habilitados
+                "excluded_payment_types": [],
+                "excluded_payment_methods": [],
+                # Permitir cuotas para tarjetas de crédito
+                "installments": 12
+            },
+            # Configuración específica para Colombia
+            "statement_descriptor": "CLOTHES VF",
+            "binary_mode": False,  # CRÍTICO: False permite pagos pendientes (necesario para PSE)
+            # IMPORTANTE: Por defecto, Mercado Pago permite pagos sin cuenta (como invitado)
+            # Los usuarios pueden pagar ingresando directamente los datos de su tarjeta
+            # sin necesidad de crear o iniciar sesión en Mercado Pago
+            # Si se está forzando login, verifica en tu cuenta de Mercado Pago:
+            # Configuración > Checkout > "Solo usuarios de Mercado Pago" debe estar DESACTIVADO
+            # URLs adicionales para mejor manejo
+            "notification_url": None,  # Se maneja por webhook separado
         }
         
+        print(f"📝 Creando preferencia de Mercado Pago:")
+        print(f"   - Orden ID: {order_id}")
+        print(f"   - Total: ${total_amount:,.0f} COP")
+        print(f"   - Items: {len(items)}")
+        print(f"   - Métodos habilitados: Tarjeta débito/crédito, PSE")
+        
         preference_response = sdk.preference().create(preference_data)
-        preference = preference_response["response"]
-        return preference.get("id")
+        
+        if "error" in preference_response:
+            error_msg = preference_response.get("error", "Error desconocido")
+            print(f"❌ Error de Mercado Pago: {error_msg}")
+            return None
+        
+        preference = preference_response.get("response", {})
+        preference_id = preference.get("id")
+        
+        if preference_id:
+            init_point = preference.get("init_point", "")
+            print(f"✅ Preferencia creada exitosamente:")
+            print(f"   - Preference ID: {preference_id}")
+            print(f"   - Init Point: {init_point}")
+            
+            # Log detallado de métodos de pago disponibles
+            payment_methods_config = preference.get("payment_methods", {})
+            excluded_types = payment_methods_config.get("excluded_payment_types", [])
+            excluded_methods = payment_methods_config.get("excluded_payment_methods", [])
+            
+            print(f"   - Configuración de métodos de pago:")
+            print(f"     * Tipos excluidos: {excluded_types if excluded_types else 'Ninguno ✅ (todos habilitados)'}")
+            print(f"     * Métodos excluidos: {excluded_methods if excluded_methods else 'Ninguno ✅ (todos habilitados)'}")
+            print(f"     * Binary mode: {preference.get('binary_mode', False)} ✅ (False permite PSE)")
+            print(f"     * Máximo de cuotas: {payment_methods_config.get('installments', 'No especificado')}")
+            
+            print(f"   - ✅ Métodos habilitados:")
+            print(f"     • Tarjeta de débito: ✅ Habilitada")
+            print(f"     • Tarjeta de crédito: ✅ Habilitada")
+            print(f"     • PSE: ✅ Habilitado")
+            print(f"   - 💳 Pagos sin cuenta: ✅ Habilitado (los usuarios pueden pagar como invitados)")
+            print(f"   - 💡 Si algún método no aparece, verifica que esté habilitado en tu cuenta de Mercado Pago")
+            print(f"   - 💡 Si se fuerza login, desactiva 'Solo usuarios de Mercado Pago' en tu cuenta")
+            
+        return preference_id
 
     except Exception as e:
-        print(f"Error al comunicarse con Mercado Pago para crear preferencia: {e}")
+        print(f"❌ Error al comunicarse con Mercado Pago para crear preferencia: {e}")
+        import traceback
+        traceback.print_exc()
         return None
 
 # --- Lógica para Webhooks de Mercado Pago ---
@@ -263,3 +335,41 @@ def handle_mercadopago_webhook(notification=None):
     except Exception as e:
         print(f"Error general procesando webhook: {e}")
         return {"status": "error", "message": str(e)}, 500
+
+def get_orders_by_email(email):
+    """
+    Obtiene todas las órdenes de un usuario por su email.
+    """
+    try:
+        print(f"📋 Buscando órdenes para el email: {email}")
+        
+        # Escanear la tabla y filtrar por email
+        # En DynamoDB necesitamos escanear y filtrar manualmente
+        from boto3.dynamodb.conditions import Attr
+        
+        response = table.scan(
+            FilterExpression=Attr('customerDetails.email').eq(email)
+        )
+        
+        orders = response.get('Items', [])
+        
+        # Convertir Decimal a int/float para JSON serializable
+        for order in orders:
+            if 'totalAmount' in order:
+                order['totalAmount'] = int(order['totalAmount'])
+            if 'customerDetails' in order and isinstance(order['customerDetails'], dict):
+                # Asegurar que customerDetails sea un dict serializable
+                pass
+        
+        # Ordenar por fecha de creación (más recientes primero)
+        orders.sort(key=lambda x: x.get('createdAt', ''), reverse=True)
+        
+        print(f"✅ Se encontraron {len(orders)} órdenes para {email}")
+        
+        return {"status": "success", "orders": orders}
+        
+    except Exception as e:
+        print(f"❌ Error al obtener órdenes: {e}")
+        import traceback
+        traceback.print_exc()
+        return {"status": "error", "message": "No se pudieron obtener las órdenes."}

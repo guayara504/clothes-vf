@@ -1,62 +1,64 @@
-// src/App.jsx
 import React, { useState } from 'react';
-import { Routes, Route, Link } from 'react-router-dom';
-import { useCart } from './context/CartContext'; // Importar useCart
+import { Routes, Route } from 'react-router-dom';
+import { Box } from '@mui/material';
+import { useCart } from './context/CartContext';
 import HomePage from './pages/HomePage';
+import ProductsPage from './pages/ProductsPage';
 import ProductManagement from './pages/ProductManagement';
 import ProductDetailPage from './pages/ProductDetailPage';
-import CheckoutPage from './pages/CheckoutPage'; // <-- IMPORTAR
+import CheckoutPage from './pages/CheckoutPage';
+import LoginPage from './pages/LoginPage';
+import RegisterPage from './pages/RegisterPage';
+import VerifyEmailPage from './pages/VerifyEmailPage';
+import OrdersManagement from './pages/OrdersManagement';
+import UserDashboard from './pages/UserDashboard';
 import NotFoundPage from './pages/NotFoundPage';
-import Cart from './components/Cart'; // Importar el componente del carrito
-import {
-  AppBar, Toolbar, Typography, Button, Container, IconButton, Badge
-} from '@mui/material';
-import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+import Cart from './components/Cart';
+import Header from './components/Header';
+import Footer from './components/Footer';
 
 function App() {
   const [isCartOpen, setIsCartOpen] = useState(false);
-  const { itemCount } = useCart(); // Obtener el número de items del contexto
+  const { itemCount } = useCart();
 
   const toggleCart = () => {
     setIsCartOpen(!isCartOpen);
   };
-  return (
-    <div>
-      {/* --- Barra de Navegación Mejorada --- */}
-      <AppBar position="static">
-        <Toolbar>
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            <Button component={Link} to="/" color="inherit">
-              Clothes VF
-            </Button>
-          </Typography>
-          <Button component={Link} to="/admin/products" color="inherit">
-            Panel de Admin
-          </Button>
-          <IconButton color="inherit" onClick={toggleCart}>
-            <Badge badgeContent={itemCount} color="error">
-              <ShoppingCartIcon />
-            </Badge>
-          </IconButton>
-        </Toolbar>
-      </AppBar>
 
-      {/* --- Panel Lateral del Carrito --- */}
+  return (
+    <Box
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        minHeight: '100vh',
+      }}
+    >
+      {/* Header */}
+      <Header onCartOpen={toggleCart} />
+
+      {/* Panel Lateral del Carrito */}
       <Cart open={isCartOpen} onClose={toggleCart} />
 
-      {/* --- Definición de Rutas --- */}
-      <main>
-        <Container sx={{ py: 4 }}>
-          <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/product/:productId" element={<ProductDetailPage />} />
-            <Route path="/admin/products" element={<ProductManagement />} />
-            <Route path="/checkout" element={<CheckoutPage />} /> {/* <-- AÑADIR RUTA */}
-            <Route path="*" element={<NotFoundPage />} />
-          </Routes>
-        </Container>
-      </main>
-    </div>
+      {/* Contenido Principal */}
+      <Box component="main" sx={{ flexGrow: 1, pb: 8 }}>
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/products" element={<ProductsPage />} />
+          <Route path="/product/:productId" element={<ProductDetailPage />} />
+          <Route path="/admin/products" element={<ProductManagement />} />
+          <Route path="/admin/orders" element={<OrdersManagement />} />
+          <Route path="/checkout" element={<CheckoutPage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/verify-email" element={<VerifyEmailPage />} />
+          <Route path="/dashboard" element={<UserDashboard />} />
+          <Route path="*" element={<NotFoundPage />} />
+        </Routes>
+      </Box>
+
+      {/* Footer */}
+      <Footer />
+    </Box>
   );
 }
 

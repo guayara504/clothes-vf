@@ -40,3 +40,15 @@ export const getProductById = (productId) => {
 export const placeOrder = (orderData) => {
   return apiClient.post('/orders', orderData);
 };
+
+// Función para obtener órdenes del usuario por email
+export const getOrdersByEmail = (email) => {
+  // Codificar el email para URL segura
+  const encodedEmail = encodeURIComponent(email);
+  return apiClient.get(`/orders/by-email/${encodedEmail}`);
+};
+
+// Función para obtener todas las órdenes (admin)
+export const getAllOrders = () => {
+  return apiClient.get('/admin/orders');
+};
