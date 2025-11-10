@@ -135,12 +135,9 @@ def _create_mercadopago_preference(order_id, items, customer_details):
             # Configuración específica para Colombia
             "statement_descriptor": "CLOTHES VF",
             "binary_mode": False,  # CRÍTICO: False permite pagos pendientes (necesario para PSE)
-            # Configuración explícita para permitir pagos sin cuenta
-            # NO incluir "purpose" que fuerza login
-            # Permitir pagos de invitados explícitamente
-            "purpose": None,  # No forzar ningún propósito específico que requiera cuenta
-            # Configuración adicional para garantizar pagos sin cuenta
-            "expires": False,  # No expirar la preferencia
+            # IMPORTANTE: NO incluir "purpose" - esto fuerza login en algunos casos
+            # NO incluir "expires" - puede causar problemas
+            # La configuración por defecto de Mercado Pago permite pagos sin cuenta
             # URLs adicionales para mejor manejo
             "notification_url": None,  # Se maneja por webhook separado
         }
