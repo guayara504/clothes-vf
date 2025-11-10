@@ -48,8 +48,19 @@ El código ya incluye las siguientes configuraciones:
     "installments": 12
 },
 "binary_mode": False,  # Permite pagos pendientes (PSE)
-"purpose": None,  # No fuerza ningún propósito que requiera cuenta
+# ⚠️ IMPORTANTE: NO se incluye "purpose": "wallet_purchase"
+# Si se incluye "purpose": "wallet_purchase", SOLO usuarios con cuenta podrán pagar
+# Al NO incluir "purpose", se permiten pagos sin cuenta (usuarios invitados)
 ```
+
+### ⚠️ Sobre el Parámetro `purpose`
+
+**NO incluir** el parámetro `purpose` en la preferencia de pago es **CRÍTICO** para permitir pagos sin cuenta.
+
+- ❌ **Si incluyes** `"purpose": "wallet_purchase"` → SOLO usuarios con cuenta de Mercado Pago podrán pagar
+- ✅ **Si NO incluyes** `purpose` → Los usuarios pueden pagar como invitados sin crear cuenta
+
+El código actual **NO incluye** `purpose`, lo cual es correcto para permitir pagos sin cuenta.
 
 ## 🧪 Cómo Probar
 

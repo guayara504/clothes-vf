@@ -135,12 +135,18 @@ def _create_mercadopago_preference(order_id, items, customer_details):
             # Configuración específica para Colombia
             "statement_descriptor": "CLOTHES VF",
             "binary_mode": False,  # CRÍTICO: False permite pagos pendientes (necesario para PSE)
-            # IMPORTANTE: NO incluir "purpose" - esto fuerza login en algunos casos
-            # NO incluir "expires" - puede causar problemas
-            # La configuración por defecto de Mercado Pago permite pagos sin cuenta
+            # ⚠️ IMPORTANTE: NO incluir "purpose": "wallet_purchase"
+            # Si se incluye "purpose": "wallet_purchase", SOLO usuarios con cuenta de Mercado Pago podrán pagar
+            # Al NO incluir "purpose", se permiten pagos sin cuenta (usuarios invitados)
+            # La configuración por defecto de Mercado Pago permite pagos sin cuenta cuando NO hay "purpose"
             # URLs adicionales para mejor manejo
             "notification_url": None,  # Se maneja por webhook separado
         }
+        
+        # Verificación explícita: NO debe incluir "purpose" para permitir pagos sin cuenta
+        if "purpose" in preference_data:
+            print("⚠️ ADVERTENCIA: 'purpose' encontrado en preferencia. Esto puede restringir pagos a usuarios registrados.")
+            del preference_data["purpose"]
         
         print(f"📝 Creando preferencia de Mercado Pago:")
         print(f"   - Orden ID: {order_id}")
